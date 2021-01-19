@@ -1280,8 +1280,19 @@ func (c Client) PreviousTradingDay(ctx context.Context) (TradeHolidayDate, error
 
 // PreviousHoliday returns the date of the previous holiday.
 func (c Client) PreviousHoliday(ctx context.Context) (TradeHolidayDate, error) {
-	r := TradeHolidayDate{}
-	endpoint := "/ref-data/us/dates/holiday/last/1"
+	holidays, err := c.PreviousHolidays(ctx, 1)
+
+	if err != nil || len(holidays) == 0 {
+		return TradeHolidayDate{}, err
+	}
+
+	return holidays[0], err
+}
+
+// PreviousHolidays returns the date of the previous holiday.
+func (c Client) PreviousHolidays(ctx context.Context, count int) ([]TradeHolidayDate, error) {
+	r := []TradeHolidayDate{}
+	endpoint := fmt.Sprintf("/ref-data/us/dates/holiday/last/%d", count)
 	err := c.GetJSON(ctx, endpoint, &r)
 	return r, err
 }
