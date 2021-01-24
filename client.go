@@ -1272,8 +1272,19 @@ func (c Client) NextHolidays(ctx context.Context, numDays int) ([]TradeHolidayDa
 
 // PreviousTradingDay returns the date of the previous trading day.
 func (c Client) PreviousTradingDay(ctx context.Context) (TradeHolidayDate, error) {
-	r := TradeHolidayDate{}
-	endpoint := "/ref-data/us/dates/trade/last/1"
+	tradingDays, err := c.PreviousTradingDays(ctx, 1)
+
+	if err != nil || len(tradingDays) == 0 {
+		return TradeHolidayDate{}, err
+	}
+
+	return tradingDays[0], err
+}
+
+// PreviousTradingDay returns the date of the previous trading day.
+func (c Client) PreviousTradingDays(ctx context.Context, count int) ([]TradeHolidayDate, error) {
+	r := []TradeHolidayDate{}
+	endpoint := fmt.Sprintf("/ref-data/us/dates/trade/last/%d", count)
 	err := c.GetJSON(ctx, endpoint, &r)
 	return r, err
 }
